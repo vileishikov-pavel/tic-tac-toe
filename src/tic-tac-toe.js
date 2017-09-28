@@ -1,6 +1,5 @@
 class TicTacToe {
-    constructor() {
-        this.currentSymbol = 'x';
+    constructor() {        
         this.gameState = [
             [null, null, null],
             [null, null, null],
@@ -8,7 +7,8 @@ class TicTacToe {
         ];
         this.gameFinished = false;
         this.gameDraw = false;
-        this.gameWinner = null;        
+        this.currentSymbol = 'x';
+        this.gameWinner = null;
     }
 
     getCurrentPlayerSymbol() {
@@ -16,16 +16,16 @@ class TicTacToe {
     }
 
     nextTurn(rowIndex, columnIndex) {
-        if (this.isFinished()) {
+        if (this.isFinished() || this.gameState[rowIndex][columnIndex]) {
             return;
         }
-
-        this.currentSymbol = this.currentSymbol === 'x' ? 'o' : 'x';
+        
         this.gameState[rowIndex][columnIndex] = this.currentSymbol;
+        this.currentSymbol = this.currentSymbol === 'x' ? 'o' : 'x';
+        this._check();
 
         if (this.noMoreTurns()) {
-            this.gameFinished = true;
-            this._check();
+            this.gameFinished = true;            
         }
     }
 
@@ -49,14 +49,17 @@ class TicTacToe {
     }
     
     _check() {
+        var hasNull = false;
         var check = [];
         var row = [];
 
-
-        check.concat(this.gameState);
+        check = check.concat(this.gameState);
         
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
+                if (!this.gameState[i][j]) {
+                    hasNull = true;
+                }                    
                 row.push(this.gameState[j][i]);
             }
             check.push(row);
@@ -73,19 +76,25 @@ class TicTacToe {
         for (let m = 0; m < 3; m++) {
             row.push(this.gameState[m][2-m]);
         }
-        row = [];
+        check.push(row);
+        row = [];        
 
         check.forEach((val) => {
-            var res = val.join('');
+            var res = val.join('');            
             if (res === 'ooo') { 
-                this.gameWinner = 'o'; 
-            } else if (res = 'xxx') {
+                this.gameWinner = 'o';
+                this.gameFinished = true;
+            } else if (res === 'xxx') {
                 this.gameWinner = 'x';
+                this.gameFinished = true;
             }
         });
         
-        if (!this.gameWinner) {
-            this.gameDraw = true;
+        if (!hasNull) {
+            if (!this.gameWinner) {
+                this.gameDraw = true;
+            }
+            this.gameFinished = true;
         }
     }
 
